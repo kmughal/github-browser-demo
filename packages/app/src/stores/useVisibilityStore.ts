@@ -1,7 +1,7 @@
 import create from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 
-interface VisibilityState {
+export interface VisibilityState {
   id: number;
   visibility: boolean;
 }
@@ -17,17 +17,15 @@ export const useVisibilityStore = create(
       visibility: [],
       toggleVisibility: (repoId) => {
         set((state) => {
-          const updatedVisibility = state.visibility.some(
-            (repo) => repo.id === repoId
-          )
-            ? state.visibility.map((repo) =>
-                repo.id === repoId
-                  ? { ...repo, visibility: !repo.visibility }
-                  : repo
-              )
-            : [...state.visibility, { id: repoId, visibility: true }];
+          const { visibility } = get();
+          const lookup = visibility.find((repo) => repo.id === repoId);
+          if (lookup) {
+            lookup.visibility = !lookup.visibility;
+          } else {
+            visibility.push({ id: repoId, visibility: true });
+          }
 
-          return { visibility: updatedVisibility };
+          return { visibility };
         });
       },
     }),

@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { useVisibilityStore } from "./useVisibilityStore";
+import { VisibilityState, useVisibilityStore } from "./useVisibilityStore";
 
 export interface GithubRepo {
   id: number;
@@ -44,6 +44,24 @@ interface GithubRepoStoreState {
   updateVisibility: (repoId: number) => void;
 }
 
+const mapVisibility = (
+  visibilityDetails: VisibilityState[],
+  data: GitHubRepoSearchResponse
+) => {
+  return data.items.map(({ id, name, description, owner }) => {
+    const visibility =
+      visibilityDetails.find((v) => v.id === id)?.visibility || false;
+
+    return {
+      id,
+      name,
+      description,
+      visibility,
+      avatarUrl: owner.avatar_url,
+    };
+  });
+};
+
 export const useGithubRepoStore = create<GithubRepoStoreState>((set, get) => ({
   data: [] as GithubRepo[],
   pageSize: 10,
@@ -51,45 +69,21 @@ export const useGithubRepoStore = create<GithubRepoStoreState>((set, get) => ({
   totalItems: 0,
   updateVisibility: (repoId: number) => {
     const { data: currentData, totalItems } = get();
-    const repos = currentData.map((item) => {
-      if (item.id === repoId) {
-        item.visibility = !item.visibility;
-      }
-
-      return {
-        id: item.id,
-        name: item.name,
-        description: item.description,
-        visibility: item.visibility,
-        avatarUrl: item.avatarUrl,
-      };
-    });
+    const lookup = currentData.find((item) => item.id === repoId);
+    lookup && (lookup.visibility = !lookup.visibility);
 
     set({
-      data: repos,
+      data: currentData,
       totalItems,
     });
   },
   fetch: async () => {
     const res = await fetchGithub(1, 10);
-
-    const visibilityState = useVisibilityStore.getState().visibility;
-    const { items, total_count: totalItems } = res;
-    const repos = items.map((repoData) => {
-      const visibility =
-        visibilityState.find((v) => v.id === repoData.id)?.visibility || false;
-
-      return {
-        id: repoData.id,
-        name: repoData.name,
-        description: repoData.description,
-        visibility: visibility,
-        avatarUrl: repoData.owner.avatar_url,
-      };
-    });
+    const { visibility } = useVisibilityStore.getState();
+    const { total_count: totalItems } = res;
 
     set({
-      data: repos,
+      data: mapVisibility(visibility, res),
       totalItems,
     });
   },
@@ -98,41 +92,15 @@ export const useGithubRepoStore = create<GithubRepoStoreState>((set, get) => ({
   nextPage: async () => {
     const { currentPage, pageSize } = get();
     const newPage = currentPage + 1;
-    const data = await fetchGithub(newPage, pageSize);
-    const visibilityState = useVisibilityStore.getState().visibility;
-
-    const repos = data.items.map((x) => {
-      const visibility =
-        visibilityState.find((v) => v.id === x.id)?.visibility || false;
-      return {
-        id: x.id,
-        name: x.name,
-        description: x.description,
-        visibility: visibility,
-        avatarUrl: x.owner.avatar_url,
-      };
-    });
-
-    set({ currentPage: newPage, data: repos });
+    const res = await fetchGithub(newPage, pageSize);
+    const { visibility } = useVisibilityStore.getState();
+    set({ currentPage: newPage, data: mapVisibility(visibility, res) });
   },
   prevPage: async () => {
     const { currentPage, pageSize } = get();
     const newPage = Math.max(currentPage - 1, 1);
-    const data = await fetchGithub(newPage, pageSize);
-    const visibilityState = useVisibilityStore.getState().visibility;
-
-    const repos = data.items.map((x) => {
-      const visibility =
-        visibilityState.find((v) => v.id === x.id)?.visibility || false;
-      return {
-        id: x.id,
-        name: x.name,
-        description: x.description,
-        visibility: visibility,
-        avatarUrl: x.owner.avatar_url,
-      };
-    });
-
-    set({ currentPage: newPage, data: repos });
+    const res = await fetchGithub(newPage, pageSize);
+    const { visibility } = useVisibilityStore.getState();
+    set({ currentPage: newPage, data: mapVisibility(visibility, res) });
   },
 }));
