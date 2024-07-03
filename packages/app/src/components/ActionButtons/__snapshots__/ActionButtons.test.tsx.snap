@@ -1,0 +1,22 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ActionButtons Tests should render RepoCard component 1`] = `
+<div
+  className="flex ml-5"
+>
+  <button
+    className="previous-button"
+    disabled={false}
+    onClick={[MockFunction]}
+  >
+    Previous
+  </button>
+  <button
+    className="ml-5 next-button"
+    disabled={false}
+    onClick={[MockFunction]}
+  >
+    Next
+  </button>
+</div>
+`;
