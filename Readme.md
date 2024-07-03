@@ -24,3 +24,7 @@ To run unit tests please execute ```pnpm test ``` under the root folder.
 ### How to run E2E / Functional tests
 
 To run e2e tests please execute ```pnpm e2e``` under the root folder.
+
+### Demo
+
+![alt text](image.png)
