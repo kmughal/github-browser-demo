@@ -20,7 +20,7 @@ export const App = () => {
 
   return (
     <div className="bg-slate-300">
-      <main className="sm:w-1/2 w-full m-auto">
+      <main className="sm:w-1/2 w-full m-auto p-5">
         <div className="flex-col">
           <h1 className="text-2xl font-extrabold ml-5" id="main-heading">browse Github</h1>
           <ActionButtons currentPage={currentPage} prevPage={prevPage} nextPage={nextPage} totalItems={totalItems} />
