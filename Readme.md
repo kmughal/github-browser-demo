@@ -4,7 +4,7 @@ This is a Github browser sample project.
 
 ## Tech stack
 
-Following tech stack is used for this demo work. You can view the [demo](https://github.com/kmughal/github-browser-demo)
+Following tech stack is used for this demo work. You can view the [demo](https://mypvmv-3000.csb.app/)
 
 - package manage: pnpm
 - workspace: nx
